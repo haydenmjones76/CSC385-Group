@@ -14,7 +14,7 @@ pthread_mutex_t mutex;
 int out = 0;
 int in = 0;
 int nStudents = 15;
-bool isSleep = false;
+int isSleep = 0;
 ///single TA process
 void *ta_actions(void *number){
 	
@@ -46,7 +46,7 @@ void *ta_actions(void *number){
 		else{
 			printf("No students waiting. Sleeping.\n");
 			//"sleeping". is waiting here until time to be "awoken" by semaphore post
-			isSleep = true;
+			isSleep = 1;
 			sem_wait(&sleepSem);
 		}
 	}
@@ -69,7 +69,8 @@ void *student_actions(void *student_id){
 			out = (out+1) % BUFFERSIZE;
 			
 			//check if every other seat is empty, if so "wakes" the TA with a semaphore
-			if((buffer[out] % BUFFERSIZE) == 0 & (buffer[out+1] % BUFFERSIZE) == 0 & isSleep == true){
+			if((buffer[out] % BUFFERSIZE) == 0 & (buffer[out+1] % BUFFERSIZE) == 0 & isSleep == 1){
+				isSleep = 0;
 				sem_post(&sleepSem);
 			}
 			
